@@ -1,5 +1,5 @@
 import unittest2 as unittest
-from gato import *
+from gatos import *
 
 class TestGato(unittest.TestCase):
 
@@ -32,3 +32,8 @@ class TestGato(unittest.TestCase):
         composition_0 = mult | add
         composed_0 = starting_stack01 | composition_0
         self.assertEqual(decomposed_0, composed_0)
+
+        starting_stack1 = [3,4,5]
+        expected = [3,4,25]
+        actual = starting_stack1 | square
+        self.assertEqual(expected, actual)
