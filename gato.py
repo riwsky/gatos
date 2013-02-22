@@ -1,15 +1,5 @@
 import inspect
 
-def multipop(liszt, n):
-    ret = []
-    while n > 0:
-        ret.append(liszt.pop())
-        n -= 1
-    return ret
-
-def gatocompose(a, b):
-    return Gato(lambda *x: list(reversed(x)) | a | b)
-
 class Gato():
     
     def __init__(self, function, nargs=None, needs_the_rest=None):
@@ -24,6 +14,9 @@ class Gato():
         
     def __repr__(self):
         return self._function.func_name
+
+    def __add__(self, liszt):
+        return gatocompose(self, put(*liszt))
             
     def __call__(self, *args, **kwargs):
         return self._function(*args, **kwargs)
@@ -50,6 +43,15 @@ class Gato():
             incoming = multipop(stack, self._nargs)
             return stack + restack(self._function(*incoming))
 
+def gatify(source):
+    if isinstance(source, Gato):
+        return source
+    else:
+        return Gato(source)
+
+def catmap(startpoint, *functions):
+    return reduce(lambda left, right: right.__ror__(left), map(Gato, functions), startpoint)
+
 def listify(*args):
     if len(args)==0:
         return []
@@ -65,32 +67,27 @@ def listify(*args):
 def restack(function_return_values):
     return list(reversed(listify(function_return_values)))
 
+def multipop(liszt, n): #MUTATES LISZT
+    ret = []
+    while n > 0:
+        ret.append(liszt.pop())
+        n -= 1
+    return ret
+
+def gatocompose(a, b):
+    return Gato(lambda *x: list(reversed(x)) | a | b)
 
 swap = Gato(lambda x,y: (y,x))
 dup = Gato(lambda x: (x,x))
 mult = Gato(lambda x,y: x*y)
 add = Gato(lambda x, y: x+y)
+rem = Gato(lambda x: ())
 bunch = Gato(lambda *x: [list(reversed(x))])
 where = lambda pred: bunch | Gato(filter, 2).partial(pred)
-swap = Gato(lambda v, y: (y,v))
-dup = Gato(lambda x: (x,x))
 put = lambda *x: Gato(lambda: list(x))
-
-grab = lambda *x: sum(x[:1])
-
-def gatify(source):
-    if isinstance(source, Gato):
-        return source
-    else:
-        return Gato(source)
-
-def catmap(startpoint, *functions):
-    return reduce(lambda left, right: right.__ror__(left), map(Gato, functions), startpoint)
+rep = Gato(lambda x,y: tuple([y]*x))
 
 @Gato
 def tee(*x):
     print x
     return x
-
-[4,3,2,1] | Gato(lambda x, y: x*y) | swap | dup | put(5,3,4)
-
