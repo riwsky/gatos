@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 from gatos import *
 
 class TestGato(unittest.TestCase):
@@ -16,6 +16,18 @@ class TestGato(unittest.TestCase):
     def test_adding(self):
         expected = [4,5]
         actual = [4,3,2,1] | mult + [2,3] | add | swap | dup | where(lambda x: x>3)
+        self.assertEqual(expected, actual)
+
+    def test_transform(self):
+        starting_stack = [3,4,5,6]
+        expected = [5,6,7,8]
+        actual = starting_stack | transform(lambda x: x +2)
+        self.assertEqual(expected, actual)
+
+    def test_aggregate(self):
+        starting_stack = [3,4,5,6]
+        expected = [18]
+        actual = starting_stack | aggregate(lambda x,y: x+y)
         self.assertEqual(expected, actual)
 
     def test_rep(self):

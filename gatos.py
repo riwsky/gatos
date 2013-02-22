@@ -125,6 +125,12 @@ def _multipop(liszt, n): #MUTATES LISZT
 
 _put = lambda *x: Gato(lambda: list(x))
 
+#given a higher-order function that takes a predicate and a list, eg
+#map, filter, or reduce, return a Gato factory corresponding to it
+#
+#[4,5] == [1,2,3,4,5] | _twopredhof(filter)(lambda x: x>3)
+_twopredhof = lambda hof: lambda pred: bunch | Gato(hof, 2).partial(pred)
+
 ##Some basic Gatos, to get you started
 
 #swap the top two items
@@ -156,7 +162,17 @@ rep = Gato(lambda x,y: tuple([y]*x))
 #filter the stack based on some predicate function
 #
 #[4,5] == [1,2,3,4,5] | where(lambda x: x>3)
-where = lambda pred: bunch | Gato(filter, 2).partial(pred)
+where = _twopredhof(filter)
+
+#transform the stack based on some predicate function
+#
+#[1,4,9,16,25] == [1,2,3,4,5] | transform(lambda x: x*x)
+transform = _twopredhof(map)
+
+#aggregate the stack based on some predicate function
+#
+#[15] == [1,2,3,4,5] | aggregate(lambda x: x+x)
+aggregate = _twopredhof(reduce)
 
 #print the state of the stack and return
 @Gato
